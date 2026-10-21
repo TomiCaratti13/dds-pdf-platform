@@ -1,0 +1,35 @@
+:8080 {
+    @extract path /extract /health/extract
+    handle @extract {
+        uri replace /health/extract /health
+        reverse_proxy extract:8080
+    }
+    @write {
+        method POST PUT
+        path /documents/*
+    }
+    handle @write {
+        reverse_proxy ingest:8000
+    }
+    @read {
+        method GET DELETE
+        path /documents/*
+    }
+    handle @read {
+        reverse_proxy documents:8000
+    }
+    handle /health/ingest {
+        rewrite * /health
+        reverse_proxy ingest:8000
+    }
+    handle /health/documents {
+        rewrite * /health
+        reverse_proxy documents:8000
+    }
+    handle /internal/* {
+        respond "Ruta interna" 404
+    }
+    handle {
+        reverse_proxy web:80
+    }
+}

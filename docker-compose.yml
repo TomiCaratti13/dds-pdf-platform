@@ -1,0 +1,38 @@
+name: dds-pdf
+services:
+  gateway:
+    image: caddy:2-alpine
+    ports: ["8080:8080"]
+    volumes: ["./Caddyfile:/etc/caddy/Caddyfile:ro"]
+    depends_on: [ingest, documents, extract, web]
+    cpus: '0.5'
+    mem_limit: 128m
+  extract:
+    build: ./repos/dds-pdf-extract
+    environment:
+      MAX_FILE_SIZE: '12582912'
+      MAX_INFLIGHT: '1'
+      GOMAXPROCS: '1'
+    cpus: '1.0'
+    mem_limit: 512m
+  ingest:
+    build: ./repos/dds-pdf-ingest
+    environment:
+      EXTRACT_URL: http://extract:8080
+      DOCUMENTS_URL: http://documents:8000
+      MAX_INFLIGHT: '4'
+    cpus: '0.5'
+    mem_limit: 256m
+  documents:
+    build: ./repos/dds-pdf-documents
+    environment:
+      DB_PATH: /data/documents.json
+    volumes: ["documents:/data"]
+    cpus: '0.5'
+    mem_limit: 256m
+  web:
+    build: ./repos/dds-pdf-web
+    cpus: '0.25'
+    mem_limit: 64m
+volumes:
+  documents:

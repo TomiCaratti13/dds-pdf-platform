@@ -1,0 +1,20 @@
+# Independiente: no combinar con el compose completo.
+name: dds-pdf-stress
+services:
+  gateway:
+    image: caddy:2-alpine
+    ports: ["8081:8080"]
+    volumes: ["./Caddyfile.stress:/etc/caddy/Caddyfile:ro"]
+    depends_on: [extract]
+    cpus: '0.5'
+    mem_limit: 128m
+  extract:
+    build: ./repos/dds-pdf-extract
+    environment:
+      MAX_FILE_SIZE: '12582912'
+      MAX_INFLIGHT: '${MAX_INFLIGHT:-1}'
+      GOMAXPROCS: '1'
+    cpus: '1.0'
+    mem_limit: 512m
+    deploy:
+      replicas: 5

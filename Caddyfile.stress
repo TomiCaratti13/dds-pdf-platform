@@ -1,0 +1,16 @@
+:8080 {
+    handle /health {
+        respond "ok" 200
+    }
+    handle /extract {
+        reverse_proxy {
+            dynamic a {
+                name extract
+                port 8080
+                refresh 2s
+                versions ipv4
+            }
+            lb_policy round_robin
+        }
+    }
+}

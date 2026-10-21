@@ -1,0 +1,8 @@
+repos/
+.venv/
+.pytest_cache/
+results/*
+!results/.gitkeep
+.env
+__pycache__/
+tests/stress/pdfs/*.pdf
